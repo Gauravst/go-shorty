@@ -6,6 +6,7 @@ import (
 
 	"github.com/gauravst/url-shortener-go/internal/models"
 	"github.com/gauravst/url-shortener-go/internal/repositories"
+	shorturl "github.com/gauravst/url-shortener-go/internal/utils/shortUrl"
 )
 
 type ShortService interface {
@@ -31,7 +32,18 @@ func (s *shortService) CreateShortUrl(data *models.Short) error {
 		return errors.New("Original Url cannot be empty")
 	}
 
-	err := s.shortRepo.CreateShortUrl(data)
+	shortCode := shorturl.GenerateShortCode(5)
+	isExists, err := s.shortRepo.CheckShortCodeExists(shortCode)
+	if err != nil {
+		return fmt.Errorf("failed to check short code : %w", err)
+	}
+
+	if isExists != false {
+		shortCode = shorturl.GenerateShortCode(5)
+	}
+
+	data.ShortUrl = shortCode
+	err = s.shortRepo.CreateShortUrl(data)
 	if err != nil {
 		return fmt.Errorf("failed to create short url: %w", err)
 	}

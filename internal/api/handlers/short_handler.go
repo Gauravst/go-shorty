@@ -96,14 +96,6 @@ func UpdateShortUrl(shortService services.ShortService) http.HandlerFunc {
 			return
 		}
 
-		// Request validation
-		err = validator.New().Struct(data)
-		if err != nil {
-			validateErrs := err.(validator.ValidationErrors)
-			response.WriteJson(w, http.StatusBadRequest, response.ValidationError(validateErrs))
-			return
-		}
-
 		idInt, err := strconv.Atoi(id)
 		if err != nil {
 			response.WriteJson(w, http.StatusInternalServerError, response.GeneralError(err))
@@ -121,7 +113,7 @@ func UpdateShortUrl(shortService services.ShortService) http.HandlerFunc {
 	}
 }
 
-func DeleteShortUrl(taskService services.ShortService) http.HandlerFunc {
+func DeleteShortUrl(shortService services.ShortService) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
 		id := r.PathValue("id")
@@ -136,7 +128,7 @@ func DeleteShortUrl(taskService services.ShortService) http.HandlerFunc {
 			return
 		}
 
-		err = taskService.DeleteShortUrl(idInt)
+		err = shortService.DeleteShortUrl(idInt)
 		if err != nil {
 			response.WriteJson(w, http.StatusInternalServerError, response.GeneralError(err))
 			return
@@ -145,5 +137,24 @@ func DeleteShortUrl(taskService services.ShortService) http.HandlerFunc {
 		// return response
 		response.WriteJson(w, http.StatusOK, "short url deleted")
 
+	}
+}
+
+func RedirectUrl(shortService services.ShortService) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+
+		shortCode := r.PathValue("shortCode")
+		if shortCode == "" {
+			response.WriteJson(w, http.StatusNotFound, response.GeneralError(fmt.Errorf("id parms not found")))
+			return
+		}
+
+		data, err := shortService.GetShortUrlByShortCode(shortCode)
+		if err != nil {
+			response.WriteJson(w, http.StatusInternalServerError, response.GeneralError(err))
+			return
+		}
+
+		response.RedirectToURL(w, r, data.OriginalUrl, http.StatusMovedPermanently)
 	}
 }

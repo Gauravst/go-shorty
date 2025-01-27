@@ -31,6 +31,7 @@ func main() {
 	shortRepo := repositories.NewShortRepository(database.DB)
 	shortService := services.NewShortService(shortRepo)
 
+	router.HandleFunc("GET /{shortCode}", handlers.RedirectUrl(shortService))
 	router.HandleFunc("GET /api/url", handlers.GetShortUrl(shortService))
 	router.HandleFunc("GET /api/url/{shortCode}", handlers.GetShortUrl(shortService))
 	router.HandleFunc("POST /api/url", handlers.CreateShortUrl(shortService))

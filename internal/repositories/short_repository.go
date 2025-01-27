@@ -9,6 +9,7 @@ import (
 
 type ShortRepository interface {
 	CreateShortUrl(data *models.Short) error
+	CheckShortCodeExists(shortCode string) (bool, error)
 	GetShortUrlByShortCode(shortCode string) (*models.Short, error)
 	GetAllShortUrl() ([]*models.Short, error)
 	UpdateShortUrl(id int, data *models.Short) error
@@ -46,6 +47,17 @@ func (r *shortRepository) CreateShortUrl(data *models.Short) error {
 	return nil
 }
 
+func (r *shortRepository) CheckShortCodeExists(shortCode string) (bool, error) {
+	var exists bool
+	query := `SELECT EXISTS(SELECT 1 FROM short WHERE shortUrl = $1)`
+
+	err := r.db.QueryRow(query, shortCode).Scan(&exists)
+	if err != nil {
+		return false, err
+	}
+	return exists, nil
+}
+
 func (r *shortRepository) GetShortUrlByShortCode(shortCode string) (*models.Short, error) {
 	data := &models.Short{}
 	query := `SELECT id, originalUrl, shortUrl, status FROM short WHERE shortUrl = $1`
@@ -58,7 +70,7 @@ func (r *shortRepository) GetShortUrlByShortCode(shortCode string) (*models.Shor
 }
 
 func (r *shortRepository) GetAllShortUrl() ([]*models.Short, error) {
-	query := `SELECT id, task, status FROM short`
+	query := `SELECT id, originalUrl, shortUrl, status FROM short`
 	rows, err := r.db.Query(query)
 	if err != nil {
 		return nil, err
@@ -84,7 +96,7 @@ func (r *shortRepository) GetAllShortUrl() ([]*models.Short, error) {
 }
 
 func (r *shortRepository) UpdateShortUrl(id int, data *models.Short) error {
-	query := `UPDATE short SET status = $1 WHERE id = $2`
+	query := `UPDATE short SET status = $1 WHERE id = $2 RETURNING id, originalUrl, shortUrl, status, createdAt, updatedAt`
 	row := r.db.QueryRow(query, data.Status, id)
 
 	err := row.Scan(

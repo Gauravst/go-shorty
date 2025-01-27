@@ -1,7 +1,8 @@
 --- 001_initial_schema.up.sql
 CREATE TABLE short (
   id SERIAL PRIMARY KEY,
-  task TEXT NOT NULL,
+  OriginalUrl TEXT NOT NULL,
+  ShortUrl TEXT NOT NULL,
   status TEXT NOT NULL DEFAULT 'pending',
   createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
