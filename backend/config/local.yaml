@@ -1,0 +1,4 @@
+env: "dev"
+http_server:
+  address: "0.0.0.0:8080"
+  port : 8080
