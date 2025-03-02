@@ -1,10 +1,10 @@
-# URL Shortener REST API in Go
+# Go Shorty - URL Shortener
 
 ![Go](https://img.shields.io/badge/Go-1.23-blue)
 ![REST API](https://img.shields.io/badge/REST-API-brightgreen)
 ![PostgreSQL](https://img.shields.io/badge/Database-PostgreSQL-blue)
 
-A simple REST API for shortening URLs, built with Go (Golang). This project is designed for beginners to learn and practice backend development concepts.
+A simple project for shortening URLs, built with GoLang (frontend - react).
 
 ---
 
